@@ -1,0 +1,51 @@
+@import "tailwindcss";
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade {
+  animation: fadeIn 0.25s ease-out;
+}
+
+/* SAFE GLOBAL RESET */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html, body, #root {
+  width: 100%;
+  overflow-x: hidden;
+  margin: 0;
+  padding: 0;
+  background-color: black;
+}
+
+/* ONLY media should have max-width */
+img, video, canvas {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* Text overflow fix */
+p, span {
+  word-break: break-word;
+}
+
+/* 2-line description */
+.two-line-ellipsis {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
