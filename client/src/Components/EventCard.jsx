@@ -27,8 +27,7 @@ const EventCard = ({ event, handleRegister, user, onClick }) => {
       {event.poster && (
         <div className="w-full h-56 overflow-hidden">
           <img
-            src={`http://localhost:5000${event.poster}`}
-            alt={event.title}
+src={event.poster}alt={event.title}
             className="w-full h-full object-cover hover:scale-110 transition duration-300"
           />
         </div>

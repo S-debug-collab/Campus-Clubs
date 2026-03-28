@@ -70,8 +70,7 @@ const MyEvents = () => {
               {event.poster && (
                 <div className="w-full h-56 overflow-hidden">
                   <img
-                    src={`http://localhost:5000${event.poster}`}
-                    alt={event.title}
+src={event.poster}                   alt={event.title}
                     className="w-full h-full object-cover hover:scale-110 transition duration-300"
                   />
                 </div>
@@ -134,7 +133,7 @@ const MyEvents = () => {
             {/* FULL POSTER */}
             {selectedEvent.poster && (
               <img
-                src={`http://localhost:5000${selectedEvent.poster}`}
+                src={selectedEvent.poster}
                 alt={selectedEvent.title}
                 className="w-full max-h-[80vh] object-contain rounded-lg"
               />

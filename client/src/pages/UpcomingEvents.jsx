@@ -146,8 +146,7 @@ const filteredEvents = events.filter((event) => {
             {/* 🖼 FULL POSTER */}
             {selectedEvent.poster && (
               <img
-                src={`http://localhost:5000${selectedEvent.poster}`}
-                alt={selectedEvent.title}
+src={selectedEvent.poster} alt={selectedEvent.title}
                 className="w-full max-h-[80vh] object-contain rounded-lg"
               />
             )}

@@ -127,7 +127,7 @@ const Dashboard = () => {
             <div className="h-40 mb-4 overflow-hidden rounded-xl">
               {club.logo ? (
                 <img
-                  src={`http://localhost:5000${club.logo}`}
+src={club.logo}
                   className="w-full h-full object-cover"
                   alt={club.name}
                 />
@@ -193,7 +193,7 @@ const Dashboard = () => {
 
       {selectedEvent.poster && (
         <img
-          src={`http://localhost:5000${selectedEvent.poster}`}
+          src={selectedEvent.poster}
           alt={selectedEvent.title}
           className="w-full max-h-[80vh] object-contain rounded-lg"
         />

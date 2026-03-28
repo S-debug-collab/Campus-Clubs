@@ -87,7 +87,7 @@ export default function ClubEvents() {
                 {/* IMAGE */}
                 {event.poster && (
                   <img
-                    src={`http://localhost:5000${event.poster}`}
+src={event.poster}
                     alt=""
                     className="md:w-1/2 h-[350px] object-cover"
                   />

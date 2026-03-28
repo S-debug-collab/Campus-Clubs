@@ -178,7 +178,7 @@ export default function ClubLeadDashboard() {
             <div className="h-40 w-full overflow-hidden rounded-lg mb-4 bg-zinc-700 flex items-center justify-center">
               {club.logo ? (
                 <img
-                  src={`http://localhost:5000${club.logo}`}
+src={club.logo} 
                   alt={club.name}
                   className="w-full h-full object-cover"
                 />
