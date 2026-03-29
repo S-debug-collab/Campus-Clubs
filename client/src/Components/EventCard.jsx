@@ -82,7 +82,7 @@ src={event.poster}alt={event.title}
                   : "bg-green-600 hover:bg-green-700"
               }`}
             >
-              {isRegistered ? "✅ Registered" : "I Have Registered"}
+              {isRegistered ? "✅ Registered" : "Mark as Registered"}
             </button>
           ) : (
             <p className="text-red-400 text-center text-sm">
