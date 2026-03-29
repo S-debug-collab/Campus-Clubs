@@ -14,36 +14,31 @@ const EventCard = ({ event, handleRegister, user, onClick }) => {
 
   return (
     <div
-      className="cursor-pointer flex flex-col bg-white/5 backdrop-blur-lg rounded-2xl overflow-hidden border border-white/10 hover:scale-105 transition duration-300 h-[460px]"
-      
-      // ✅ SAFE CLICK HANDLER (FIX)
-      onClick={(e) => {
-        e.stopPropagation();
-        if (onClick) onClick(event);
-      }}
+      className="flex flex-col bg-white/5 backdrop-blur-lg rounded-2xl overflow-hidden border border-white/10 hover:scale-105 transition duration-300 h-[460px]"
+      onClick={(e) => e.stopPropagation()} // ✅ NO CARD CLICK
     >
 
       {/* IMAGE */}
-     {event.poster && (
-  <div
-    className="w-full h-56 overflow-hidden cursor-zoom-in"
-    onClick={(e) => {
-      e.stopPropagation(); // 🚨 VERY IMPORTANT
-      if (onClick) {
-        onClick({
-          type: "poster",   // 🔥 tell parent it's poster click
-          data: event,
-        });
-      }
-    }}
-  >
-    <img
-      src={event.poster}
-      alt={event.title}
-      className="w-full h-full object-cover hover:scale-110 transition duration-300"
-    />
-  </div>
-)}
+      {event.poster && (
+        <div
+          className="w-full h-56 overflow-hidden cursor-zoom-in"
+          onClick={(e) => {
+            e.stopPropagation();
+            if (onClick) {
+              onClick({
+                type: "poster",
+                data: event,
+              });
+            }
+          }}
+        >
+          <img
+            src={event.poster}
+            alt={event.title}
+            className="w-full h-full object-cover hover:scale-110 transition duration-300"
+          />
+        </div>
+      )}
 
       {/* CONTENT */}
       <div className="p-4 flex flex-col flex-1">
@@ -80,8 +75,6 @@ const EventCard = ({ event, handleRegister, user, onClick }) => {
               🔗 Register Here
             </a>
           )}
-
-        
 
           {!isCompleted ? (
             <button
