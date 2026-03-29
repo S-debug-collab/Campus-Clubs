@@ -11,7 +11,13 @@ const EventCard = ({ event, handleRegister, user, onClick }) => {
   const isCompleted =
     event.status === "completed" ||
     new Date(event.date) < new Date();
-
+const handleClick = (payload) => {
+  if (payload.type === "poster") {
+    setPosterImage(payload.data.poster); // 🔥 only image
+  } else {
+    setSelectedEvent(payload); // full modal
+  }
+};
   return (
     <div
       className="cursor-pointer flex flex-col bg-white/5 backdrop-blur-lg rounded-2xl overflow-hidden border border-white/10 hover:scale-105 transition duration-300 h-[460px]"
@@ -80,6 +86,19 @@ const EventCard = ({ event, handleRegister, user, onClick }) => {
               🔗 Register Here
             </a>
           )}
+
+          {posterImage && (
+  <div
+    className="fixed inset-0 bg-black/90 flex items-center justify-center z-50"
+    onClick={() => setPosterImage(null)}
+  >
+    <img
+      src={posterImage}
+      alt="poster"
+      className="max-h-[90vh] rounded-xl"
+    />
+  </div>
+)}
 
           {!isCompleted ? (
             <button
