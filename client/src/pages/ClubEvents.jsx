@@ -179,8 +179,9 @@ export default function ClubEvents() {
                                 "Enter new time:",
                                 event.time
                               );
+                            const customMessage = prompt("Enter additional message (optional):");
 
-                              if (!newVenue && !newDate && !newTime) return;
+if (!newVenue && !newDate && !newTime && !customMessage) return;
 
                               try {
                                 const token = localStorage.getItem("token");
@@ -191,6 +192,7 @@ export default function ClubEvents() {
                                     venue: newVenue,
                                     date: newDate,
                                     time: newTime,
+                                    customMessage,
                                   },
                                   {
                                     headers: {
