@@ -24,14 +24,26 @@ const EventCard = ({ event, handleRegister, user, onClick }) => {
     >
 
       {/* IMAGE */}
-      {event.poster && (
-        <div className="w-full h-56 overflow-hidden">
-          <img
-src={event.poster}alt={event.title}
-            className="w-full h-full object-cover hover:scale-110 transition duration-300"
-          />
-        </div>
-      )}
+     {event.poster && (
+  <div
+    className="w-full h-56 overflow-hidden cursor-zoom-in"
+    onClick={(e) => {
+      e.stopPropagation(); // 🚨 VERY IMPORTANT
+      if (onClick) {
+        onClick({
+          type: "poster",   // 🔥 tell parent it's poster click
+          data: event,
+        });
+      }
+    }}
+  >
+    <img
+      src={event.poster}
+      alt={event.title}
+      className="w-full h-full object-cover hover:scale-110 transition duration-300"
+    />
+  </div>
+)}
 
       {/* CONTENT */}
       <div className="p-4 flex flex-col flex-1">
