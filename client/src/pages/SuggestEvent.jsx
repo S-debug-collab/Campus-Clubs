@@ -4,32 +4,38 @@ import axios from "../utils/axios";
 export default function SuggestEvent() {
   const [topic, setTopic] = useState("");
   const [description, setDescription] = useState("");
+const [loading, setLoading] = useState(false);
+const handleSubmit = async (e) => {
+  e.preventDefault();
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  if (loading) return; // 🚨 prevent double click
 
-    try {
-      const token = localStorage.getItem("token");
+  try {
+    setLoading(true);
 
-      await axios.post(
-        "/suggestions",
-        { topic, description },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
+    const token = localStorage.getItem("token");
+
+    await axios.post(
+      "/suggestions",
+      { topic, description },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`
         }
-      );
+      }
+    );
 
-      alert("Suggestion submitted 🎉");
-      setTopic("");
-      setDescription("");
+    alert("Suggestion submitted 🎉");
+    setTopic("");
+    setDescription("");
 
-    } catch (err) {
-      console.error(err);
-      alert("Failed to submit");
-    }
-  };
+  } catch (err) {
+    console.error(err);
+    alert("Failed to submit");
+  } finally {
+    setLoading(false); // 🔥 re-enable
+  }
+};
 
   return (
     <div className="min-h-screen bg-black text-white p-8">
@@ -54,12 +60,17 @@ export default function SuggestEvent() {
           className="w-full p-2 bg-zinc-900 border border-zinc-700"
         />
 
-        <button
-          type="submit"
-          className="bg-blue-600 px-6 py-2 rounded"
-        >
-          Submit Suggestion
-        </button>
+       <button
+  type="submit"
+  disabled={loading}
+  className={`px-6 py-2 rounded ${
+    loading
+      ? "bg-gray-500 cursor-not-allowed"
+      : "bg-blue-600 hover:bg-blue-700"
+  }`}
+>
+  {loading ? "Submitting..." : "Submit Suggestion"}
+</button>
 
       </form>
     </div>
