@@ -39,7 +39,7 @@ export default function ClubEvents() {
       const uniqueEvents = Array.from(
         new Map(res.data.map((e) => [e._id, e])).values()
       );
-
+console.log(res.data);
       setEvents(uniqueEvents);
     } catch (err) {
       console.error(err);
