@@ -68,20 +68,28 @@ const AdminDashboard = () => {
     try {
       const token = localStorage.getItem("token");
 
-      if (editingClubId) {
-        await axios.patch(
-          `/clubs/update/${editingClubId}`,
-          {
-            name: clubName,
-            description: clubDesc,
-            leadEmail,
-          },
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          }
-        );
-        alert("Club updated!");
-      } else {
+     if (editingClubId) {
+  const formData = new FormData();
+  formData.append("name", clubName);
+  formData.append("description", clubDesc);
+  formData.append("leadEmail", leadEmail);
+
+  if (logoFile) {
+    formData.append("logo", logoFile);
+  }
+
+  await axios.patch(
+    `/clubs/update/${editingClubId}`,
+    formData,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
+
+  alert("Club updated!");
+} else {
         const formData = new FormData();
         formData.append("name", clubName);
         formData.append("description", clubDesc);
@@ -223,7 +231,8 @@ const AdminDashboard = () => {
 
         {club.logo && (
           <img
-            src={`http://localhost:5000${club.logo}`}
+          key={club.logo}
+            src={club.logo}
             className="w-16 h-16 rounded-xl object-cover"
           />
         )}
