@@ -8,28 +8,71 @@ export default function ClubEvents() {
   const [events, setEvents] = useState([]);
   const user = JSON.parse(localStorage.getItem("user") || "{}");
 
-  // FETCH CLUB
+  // ✅ FETCH CLUB
   useEffect(() => {
-    axios.get("/clubs").then((res) => {
-      setClub(res.data.find((c) => c._id === id) || null);
-    });
+    let isMounted = true;
+
+    const fetchClub = async () => {
+      try {
+        const res = await axios.get("/clubs");
+        if (isMounted) {
+          setClub(res.data.find((c) => c._id === id) || null);
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
+    fetchClub();
+
+    return () => {
+      isMounted = false;
+    };
   }, [id]);
 
-  // FETCH EVENTS
+  // ✅ FETCH EVENTS (FIXED)
   const fetchEvents = async () => {
     try {
       const res = await axios.get(`/events?club=${id}`);
-      setEvents(res.data);
+
+      // 🔥 REMOVE DUPLICATES
+      const uniqueEvents = Array.from(
+        new Map(res.data.map((e) => [e._id, e])).values()
+      );
+
+      setEvents(uniqueEvents);
     } catch (err) {
       console.error(err);
     }
   };
 
   useEffect(() => {
-    fetchEvents();
+    let isMounted = true;
+
+    const loadEvents = async () => {
+      try {
+        const res = await axios.get(`/events?club=${id}`);
+
+        const uniqueEvents = Array.from(
+          new Map(res.data.map((e) => [e._id, e])).values()
+        );
+
+        if (isMounted) {
+          setEvents(uniqueEvents);
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
+    loadEvents();
+
+    return () => {
+      isMounted = false;
+    };
   }, [id]);
 
-  // REGISTER
+  // ✅ REGISTER
   const handleRegister = async (event) => {
     try {
       await axios.post(`/events/${event._id}/register`);
@@ -40,15 +83,18 @@ export default function ClubEvents() {
     }
   };
 
-  // DELETE
+  // ✅ DELETE
   const handleDelete = async (eventId) => {
     if (!window.confirm("Are you sure?")) return;
+
     try {
       const token = localStorage.getItem("token");
+
       await axios.delete(`/events/${eventId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      setEvents(events.filter((e) => e._id !== eventId));
+
+      setEvents((prev) => prev.filter((e) => e._id !== eventId));
       alert("Event deleted");
     } catch (err) {
       console.error(err);
@@ -87,8 +133,8 @@ export default function ClubEvents() {
                 {/* IMAGE */}
                 {event.poster && (
                   <img
-src={event.poster}
-                    alt=""
+                    src={event.poster}
+                    alt="event"
                     className="md:w-1/2 h-[350px] object-cover"
                   />
                 )}
@@ -109,7 +155,6 @@ src={event.poster}
                       {event.time && <p>⏰ {event.time}</p>}
                       {event.venue && <p>📍 {event.venue}</p>}
 
-                      {/* ✅ CONTACT DETAILS */}
                       {event.contacts?.length > 0 && (
                         <>
                           <p>👤 {event.contacts[0].name}</p>
@@ -122,8 +167,6 @@ src={event.poster}
                   {/* BUTTONS */}
                   {!isCompleted && (
                     <div className="mt-6 space-y-3">
-                      
-                      {/* 🔗 EXTERNAL LINK */}
                       {event.registrationLink && (
                         <a
                           href={event.registrationLink}
@@ -135,7 +178,6 @@ src={event.poster}
                         </a>
                       )}
 
-                      {/* INTERNAL REGISTER */}
                       <button
                         onClick={() => handleRegister(event)}
                         disabled={isRegistered}
@@ -150,7 +192,6 @@ src={event.poster}
                           : "I Have Registered"}
                       </button>
 
-                      {/* CLUB LEAD OPTIONS */}
                       {isCreator && user.role === "clubLead" && (
                         <>
                           <button
@@ -187,10 +228,7 @@ src={event.poster}
                                   }
                                 );
 
-                                alert(
-                                  "Event updated & users notified 🎉"
-                                );
-
+                                alert("Event updated & users notified 🎉");
                                 fetchEvents();
                               } catch (err) {
                                 console.error(err);
