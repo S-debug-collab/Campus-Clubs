@@ -5,8 +5,10 @@ import EventCard from "../Components/EventCard";
 const UpcomingEvents = () => {
   const [events, setEvents] = useState([]);
   const [registeredEvents, setRegisteredEvents] = useState([]);
-const [search, setSearch] = useState("");
-  const [selectedEvent, setSelectedEvent] = useState(null); // ✅ NEW
+  const [search, setSearch] = useState("");
+
+  const [selectedEvent, setSelectedEvent] = useState(null); // full modal
+  const [posterImage, setPosterImage] = useState(null); // 🔥 ONLY IMAGE
 
   const user = JSON.parse(localStorage.getItem("user") || "{}");
   const storageKey = `myEvents_${user._id}`;
@@ -43,18 +45,18 @@ const [search, setSearch] = useState("");
   };
 
   // ✅ SEARCH FILTER
-const filteredEvents = events.filter((event) => {
-  const keyword = (search || "").toLowerCase();
+  const filteredEvents = events.filter((event) => {
+    const keyword = (search || "").toLowerCase();
 
-  return (
-    (event.title || "").toLowerCase().includes(keyword) ||
-    (event.description || "").toLowerCase().includes(keyword) ||
-    (event.category || "").toLowerCase().includes(keyword) ||
-    event.tags?.some((tag) =>
-      (tag || "").toLowerCase().includes(keyword)
-    )
-  );
-});
+    return (
+      (event.title || "").toLowerCase().includes(keyword) ||
+      (event.description || "").toLowerCase().includes(keyword) ||
+      (event.category || "").toLowerCase().includes(keyword) ||
+      event.tags?.some((tag) =>
+        (tag || "").toLowerCase().includes(keyword)
+      )
+    );
+  });
 
   // ✅ REGISTER FUNCTION
   const handleRegister = async (event) => {
@@ -88,6 +90,15 @@ const filteredEvents = events.filter((event) => {
     }
   };
 
+  // ✅ HANDLE CLICK (IMPORTANT 🔥)
+  const handleClick = (payload) => {
+    if (payload?.type === "poster") {
+      setPosterImage(payload.data.poster); // 🔥 ONLY IMAGE
+    } else {
+      setSelectedEvent(payload); // full modal (optional)
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-950 via-purple-950 to-black text-white p-6">
 
@@ -96,13 +107,13 @@ const filteredEvents = events.filter((event) => {
         Upcoming Events
       </h1>
 
-      {/* 🔍 SEARCH BAR */}
+      {/* 🔍 SEARCH */}
       <input
         type="text"
         placeholder="Search events (AI, hackathon, ML...)"
         value={search}
         onChange={(e) => setSearch(e.target.value)}
-        className="w-full md:w-1/2 p-3 mb-8 rounded-lg bg-white/10 border border-gray-700 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500"
+        className="w-full md:w-1/2 p-3 mb-8 rounded-lg bg-white/10 border border-gray-700 text-white"
       />
 
       {/* 📦 EVENTS */}
@@ -116,26 +127,36 @@ const filteredEvents = events.filter((event) => {
               event={event}
               handleRegister={handleRegister}
               user={user}
-              onClick={setSelectedEvent} // ✅ IMPORTANT
-              isRegistered={registeredEvents.some(
-                (e) => e._id === event._id
-              )}
+              onClick={handleClick} // 🔥 FIXED
             />
           ))}
         </div>
       )}
 
-      {/* ✅ MODAL (FULL POSTER VIEW) */}
+      {/* ✅ POSTER ONLY MODAL 🔥 */}
+      {posterImage && (
+        <div
+          className="fixed inset-0 bg-black/90 flex items-center justify-center z-50"
+          onClick={() => setPosterImage(null)}
+        >
+          <img
+            src={posterImage}
+            alt="poster"
+            className="max-h-[90vh] rounded-xl"
+          />
+        </div>
+      )}
+
+      {/* ✅ OPTIONAL FULL EVENT MODAL */}
       {selectedEvent && (
         <div
-          className="fixed inset-0 bg-black/80 flex items-center justify-center z-50"
+          className="fixed inset-0 bg-black/80 flex items-center justify-center z-40"
           onClick={() => setSelectedEvent(null)}
         >
           <div
-            className="relative bg-black p-4 rounded-xl max-w-4xl w-full"
+            className="bg-black p-4 rounded-xl max-w-3xl w-full"
             onClick={(e) => e.stopPropagation()}
           >
-            {/* ❌ CLOSE BUTTON */}
             <button
               className="absolute top-2 right-3 text-white text-2xl"
               onClick={() => setSelectedEvent(null)}
@@ -143,21 +164,12 @@ const filteredEvents = events.filter((event) => {
               ✖
             </button>
 
-            {/* 🖼 FULL POSTER */}
-            {selectedEvent.poster && (
-              <img
-src={selectedEvent.poster} alt={selectedEvent.title}
-                className="w-full max-h-[80vh] object-contain rounded-lg"
-              />
-            )}
-
-            {/* 📝 TITLE */}
-            <h2 className="text-xl mt-4 text-white">
-              {selectedEvent.title}
-            </h2>
+            <h2 className="text-xl mb-2">{selectedEvent.title}</h2>
+            <p className="text-gray-400">{selectedEvent.description}</p>
           </div>
         </div>
       )}
+
     </div>
   );
 };
