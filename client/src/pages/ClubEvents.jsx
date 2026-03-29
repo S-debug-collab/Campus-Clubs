@@ -10,36 +10,28 @@ export default function ClubEvents() {
 
   // ✅ FETCH CLUB
   useEffect(() => {
-    let isMounted = true;
-
     const fetchClub = async () => {
       try {
         const res = await axios.get("/clubs");
-        if (isMounted) {
-          setClub(res.data.find((c) => c._id === id) || null);
-        }
+        setClub(res.data.find((c) => c._id === id) || null);
       } catch (err) {
         console.error(err);
       }
     };
 
     fetchClub();
-
-    return () => {
-      isMounted = false;
-    };
   }, [id]);
 
-  // ✅ FETCH EVENTS (FIXED)
-  const fetchEvents = async () => {
+  // ✅ FETCH EVENTS (ONLY ONE SOURCE)
+  const loadEvents = async () => {
     try {
       const res = await axios.get(`/events?club=${id}`);
 
-console.log(res.data);
-      // 🔥 REMOVE DUPLICATES
+      // 🔥 REMOVE DUPLICATES SAFELY
       const uniqueEvents = Array.from(
         new Map(res.data.map((e) => [e._id, e])).values()
       );
+
       setEvents(uniqueEvents);
     } catch (err) {
       console.error(err);
@@ -47,29 +39,7 @@ console.log(res.data);
   };
 
   useEffect(() => {
-    let isMounted = true;
-
-    const loadEvents = async () => {
-      try {
-        const res = await axios.get(`/events?club=${id}`);
-
-        const uniqueEvents = Array.from(
-          new Map(res.data.map((e) => [e._id, e])).values()
-        );
-
-        if (isMounted) {
-          setEvents(uniqueEvents);
-        }
-      } catch (err) {
-        console.error(err);
-      }
-    };
-
     loadEvents();
-
-    return () => {
-      isMounted = false;
-    };
   }, [id]);
 
   // ✅ REGISTER
@@ -77,7 +47,8 @@ console.log(res.data);
     try {
       await axios.post(`/events/${event._id}/register`);
       alert(`You registered for "${event.title}" 🎉`);
-      fetchEvents();
+
+      loadEvents(); // ✅ refresh correctly
     } catch (err) {
       alert(err.response?.data?.message || "Error");
     }
@@ -229,7 +200,8 @@ console.log(res.data);
                                 );
 
                                 alert("Event updated & users notified 🎉");
-                                fetchEvents();
+
+                                loadEvents(); // ✅ refresh correctly
                               } catch (err) {
                                 console.error(err);
                                 alert("Failed to update");
