@@ -11,7 +11,6 @@ const AdminDashboard = () => {
   const [logoFile, setLogoFile] = useState(null);
   const [editingClubId, setEditingClubId] = useState(null);
 
-  // ✅ NEW STATE
   const [searchEmail, setSearchEmail] = useState("");
 
   useEffect(() => {
@@ -55,7 +54,7 @@ const AdminDashboard = () => {
     }
   };
 
-  // ✅ CREATE / UPDATE CLUB
+  // ✅ CREATE / UPDATE CLUB (🔥 FIXED)
   const submitClub = async () => {
     if (clubDesc.length < 100) {
       return alert("Description must be at least 100 characters");
@@ -68,63 +67,68 @@ const AdminDashboard = () => {
     try {
       const token = localStorage.getItem("token");
 
-     if (editingClubId) {
-  const formData = new FormData();
-  formData.append("name", clubName);
-  formData.append("description", clubDesc);
-  formData.append("leadEmail", leadEmail);
+      const formData = new FormData();
+      formData.append("name", clubName);
+      formData.append("description", clubDesc);
+      formData.append("leadEmail", leadEmail);
+      if (logoFile) formData.append("logo", logoFile);
 
-  if (logoFile) {
-    formData.append("logo", logoFile);
-  }
+      if (editingClubId) {
+        const res = await axios.patch(
+          `/clubs/update/${editingClubId}`,
+          formData,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
 
-  await axios.patch(
-    `/clubs/update/${editingClubId}`,
-    formData,
-    {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    }
-  );
+        // 🔥 UPDATE STATE INSTANTLY
+        setClubs((prev) =>
+          prev.map((c) =>
+            c._id === editingClubId ? res.data : c
+          )
+        );
 
-  alert("Club updated!");
-} else {
-        const formData = new FormData();
-        formData.append("name", clubName);
-        formData.append("description", clubDesc);
-        formData.append("leadEmail", leadEmail);
-        if (logoFile) formData.append("logo", logoFile);
-
-        await axios.post("/clubs/create", formData, {
+        alert("Club updated!");
+      } else {
+        const res = await axios.post("/clubs/create", formData, {
           headers: { Authorization: `Bearer ${token}` },
         });
+
+        // 🔥 ADD NEW CLUB INSTANTLY
+        setClubs((prev) => [res.data, ...prev]);
 
         alert("Club created!");
       }
 
+      // RESET
       setClubName("");
       setClubDesc("");
       setLeadEmail("");
       setLogoFile(null);
       setEditingClubId(null);
 
-      fetchClubs();
     } catch (err) {
       alert(err.response?.data?.message || "Error");
     }
   };
 
+  // ✅ DELETE CLUB (🔥 FIXED)
   const deleteClub = async (id) => {
     if (!window.confirm("Delete club?")) return;
 
-    const token = localStorage.getItem("token");
+    try {
+      const token = localStorage.getItem("token");
 
-    await axios.delete(`/clubs/delete/${id}`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
+      await axios.delete(`/clubs/delete/${id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
 
-    fetchClubs();
+      // 🔥 REMOVE INSTANTLY
+      setClubs((prev) => prev.filter((c) => c._id !== id));
+    } catch (err) {
+      alert("Delete failed");
+    }
   };
 
   const editClub = (club) => {
@@ -159,7 +163,7 @@ const AdminDashboard = () => {
         </div>
       )}
 
-      {/* CREATE CLUB */}
+      {/* CREATE / UPDATE CLUB */}
       <div className="bg-white/5 p-6 rounded-2xl mb-10">
         <h2 className="text-xl mb-4">
           {editingClubId ? "Update Club" : "Create Club"}
@@ -186,7 +190,10 @@ const AdminDashboard = () => {
           onChange={(e) => setLeadEmail(e.target.value)}
         />
 
-        <input type="file" onChange={(e) => setLogoFile(e.target.files[0])} />
+        <input
+          type="file"
+          onChange={(e) => setLogoFile(e.target.files[0])}
+        />
 
         <button
           onClick={submitClub}
@@ -196,7 +203,7 @@ const AdminDashboard = () => {
         </button>
       </div>
 
-      {/* 👑 PROMOTE ADMIN */}
+      {/* PROMOTE ADMIN */}
       <div className="bg-white/5 p-6 rounded-2xl mb-10">
         <h2 className="text-xl mb-4">Promote User to Admin 👑</h2>
 
@@ -219,57 +226,53 @@ const AdminDashboard = () => {
       </div>
 
       {/* CLUB LIST */}
-     <div className="space-y-4">
-  {clubs.map((club) => (
-    <div
-      key={club._id}
-      className="bg-white/5 backdrop-blur-lg p-5 rounded-2xl border border-white/10 flex justify-between items-start gap-6"
-    >
+      <div className="space-y-4">
+        {clubs.map((club) => (
+          <div
+            key={club._id}
+            className="bg-white/5 backdrop-blur-lg p-5 rounded-2xl border border-white/10 flex justify-between items-start gap-6"
+          >
+            {/* LEFT */}
+            <div className="flex gap-4 max-w-[75%]">
 
-      {/* LEFT SIDE */}
-      <div className="flex gap-4 max-w-[75%]">
+              {club.logo && (
+                <img
+                  src={club.logo}
+                  alt="club"
+                  className="w-16 h-16 rounded-xl object-cover"
+                />
+              )}
 
-        {club.logo && (
-          <img
-          key={club.logo}
-            src={club.logo}
-            className="w-16 h-16 rounded-xl object-cover"
-          />
-        )}
+              <div>
+                <h3 className="text-xl font-semibold">{club.name}</h3>
 
-        <div>
-          <h3 className="text-xl font-semibold">{club.name}</h3>
+                <p className="text-gray-400 text-sm mt-1 max-h-[80px] overflow-hidden">
+                  {club.description}
+                </p>
+              </div>
+            </div>
 
-          {/* ✅ LIMIT HEIGHT INSTEAD OF CLAMP */}
-          <p className="text-gray-400 text-sm mt-1 max-h-[80px] overflow-hidden">
-            {club.description}
-          </p>
-        </div>
+            {/* RIGHT */}
+            <div className="flex flex-col gap-3 min-w-[120px]">
 
+              <button
+                onClick={() => editClub(club)}
+                className="bg-yellow-500 hover:bg-yellow-600 py-2 rounded-lg font-medium"
+              >
+                Edit
+              </button>
+
+              <button
+                onClick={() => deleteClub(club._id)}
+                className="bg-red-500 hover:bg-red-600 py-2 rounded-lg font-medium"
+              >
+                Delete
+              </button>
+
+            </div>
+          </div>
+        ))}
       </div>
-
-      {/* RIGHT SIDE BUTTONS */}
-      <div className="flex flex-col gap-3 min-w-[120px]">
-
-        <button
-          onClick={() => editClub(club)}
-          className="bg-yellow-500 hover:bg-yellow-600 py-2 rounded-lg font-medium w-full"
-        >
-          Edit
-        </button>
-
-        <button
-          onClick={() => deleteClub(club._id)}
-          className="bg-red-500 hover:bg-red-600 py-2 rounded-lg font-medium w-full"
-        >
-          Delete
-        </button>
-
-      </div>
-
-    </div>
-  ))}
-</div>
 
     </div>
   );
