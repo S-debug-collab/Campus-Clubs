@@ -23,6 +23,8 @@ import MyEvents from "./pages/MyEvents";
 import Notifications from "./pages/Notifications";
 import SuggestEvent from "./pages/SuggestEvent";
 import Suggestions from "./pages/Suggestions";
+import { Analytics } from '@vercel/analytics/react';
+
 function App() {
   
  
@@ -64,6 +66,8 @@ function App() {
 </div>
       </Router>
     </AuthProvider>
+          <Analytics />
+
     </div>
   );
 }
